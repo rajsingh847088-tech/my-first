@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Note - 📋NotesPortal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .upload-container {
+            padding: 100px 5% 50px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .upload-card {
+            padding: 2.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">NotesPortal</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="upload.html">Upload Note</a>
+            <a href="#" class="btn btn-outline" id="logout-btn" style="display:none;">Logout</a>
+            <a href="auth.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
+        </div>
+    </nav>
+
+    <div class="upload-container">
+        <div class="glass-effect upload-card">
+            <h2 style="margin-bottom: 2rem; color: var(--secondary-color);">Upload a Note</h2>
+            <form id="upload-form">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" id="note-title" class="form-control" required
+                        placeholder="e.g. Data Structures Midterm Notes">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Note Format</label>
+                    <select id="note-type" class="form-control" onchange="toggleNoteType()">
+                        <option value="pdf">Upload PDF File</option>
+                        <option value="text">Direct Text</option>
+                        <option value="link">External Link (Drive, Web, etc.)</option>
+
+                    </select>
+                </div>
+
+                <div class="form-group" id="group-text">
+                    <label class="form-label">Note Content</label>
+                    <textarea id="note-content" class="form-control" rows="5"
+                        placeholder="Write or paste your notes here..."></textarea>
+                </div>
+
+                <div class="form-group" id="group-link" style="display:none;">
+                    <label class="form-label">Link URL</label>
+                    <input type="url" id="note-link" class="form-control" placeholder="https://drive.google.com/..." />
+                </div>
+
+                <div class="form-group" id="group-pdf" style="display:none;">
+                    <label class="form-label">Attach PDF</label>
+                    <input type="file" id="note-file" class="form-control" accept="application/pdf" />
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Branch</label>
+                        <input type="text" id="note-branch" class="form-control" required pattern="[^0-9]+"
+                            title="Numbers are not allowed in branch names."
+                            oninput="this.value = this.value.replace(/[0-9]/g, '')" placeholder="CS, IT, EC...">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Semester</label>
+                        <input type="number" id="note-semester" class="form-control" required min="1" max="8"
+                            placeholder="1-8">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Subject</label>
+                        <input type="text" id="note-subject" class="form-control" required pattern="[^0-9]+"
+                            title="Numbers are not allowed in subject names."
+                            oninput="this.value = this.value.replace(/[0-9]/g, '')" placeholder="Subject Name">
+                    </div>
+                </div>
+                <div id="upload-msg" style="margin-bottom: 1rem; font-weight: 500;"></div>
+                <button type="submit" class="btn btn-primary">Publish Note</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        window.toggleNoteType = () => {
+            const type = document.getElementById('note-type').value;
+            document.getElementById('group-text').style.display = type === 'text' ? 'block' : 'none';
+            document.getElementById('group-link').style.display = type === 'link' ? 'block' : 'none';
+            document.getElementById('group-pdf').style.display = type === 'pdf' ? 'block' : 'none';
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('notes_user'));
+            if (!user) {
+                alert("Please login to upload notes!");
+                window.location.href = 'auth.html';
+            }
+
+            document.getElementById('upload-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = new FormData();
+                form.append("title", document.getElementById('note-title').value);
+                form.append("branch", document.getElementById('note-branch').value);
+                form.append("semester", document.getElementById('note-semester').value);
+                form.append("subject", document.getElementById('note-subject').value);
+                form.append("owner_id", user.id || user.user_id);
+
+                const type = document.getElementById('note-type').value;
+                if (type === 'text') {
+                    form.append("content", document.getElementById('note-content').value);
+                } else if (type === 'link') {
+                    const linkVal = document.getElementById('note-link').value;
+                    if (!linkVal) return alert("Please enter a link!");
+                    form.append("content", linkVal);
+                } else {
+                    form.append("content", "");
+                    const fileInput = document.getElementById('note-file');
+                    if (fileInput.files.length > 0) {
+                        form.append("file", fileInput.files[0]);
+                    } else {
+                        return alert("Please select a valid PDF file");
+                    }
+                }
+
+                await createNote(form);
+            });
+        });
+    </script>
+</body>
+
+</html>

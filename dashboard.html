@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NotesPortal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            padding: 100px 5% 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+
+
+        .card {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .card p,
+        .card a {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+
+
+
+
+        .note-card {
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .note-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .note-meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">NotesPortal</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="upload.html">Upload Note</a>
+            <a href="#" class="btn btn-outline" id="logout-btn" style="display:none;">Logout</a>
+            <a href="auth.html" class="btn btn-secondary" id="nav-login-btn">Login</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="header-actions">
+            <h2>Explore Notes</h2>
+            <a href="upload.html" class="btn btn-primary">Upload New Note</a>
+        </div>
+
+        <div class="filters glass-effect" style="padding: 1rem;">
+            <input type="text" id="filter-branch" class="form-control" placeholder="Branch (e.g., CS)" style="flex: 1;">
+            <input type="text" id="filter-semester" class="form-control" placeholder="Semester (e.g., 5)"
+                style="flex: 1;">
+            <input type="text" id="filter-subject" class="form-control" placeholder="Subject" style="flex: 1;">
+            <button class="btn btn-secondary" id="apply-filters">Filter</button>
+        </div>
+
+        <div class="notes-grid" id="notes-container">
+            <div style="text-align:center; width: 100%; color: var(--text-muted); grid-column: 1 / -1;">Loading notes...
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchNotes();
+
+            document.getElementById('apply-filters').addEventListener('click', () => {
+                const branch = document.getElementById('filter-branch').value;
+                const semester = document.getElementById('filter-semester').value;
+                const subject = document.getElementById('filter-subject').value;
+                fetchNotes(branch, semester, subject);
+            });
+        });
+    </script>
+</body>
+
+</html>
